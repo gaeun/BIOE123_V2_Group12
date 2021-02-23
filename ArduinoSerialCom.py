@@ -1,49 +1,16 @@
 import serial
 import time
 
-ser = serial.Serial(port='/dev/cu.usbmodem14201', baudrate = 9600, timeout = 1)
+arduino = serial.Serial(port='/dev/cu.usbmodem14601', baudrate = 9600, timeout = 1)
 time.sleep(3)
-numPoints = 20
-dataList = [0]*numPoints
-dataFile = open('dataFile.txt', 'w')
-numRowsCollect = 100
 
-def getValues():
-    
-    ser.write(b'g')
-    arduinoData = ser.readline().decode().split('\r\n')
-    
-    return arduinoData[0]
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = arduino.readline()
+    return data
 
-def printToFile(data,index):
-    
-    dataFile.write(data)
-    if index != (numPoints - 1):
-        dataFile.write(',')
-    else:
-        dataFile.write('\n')
-
-def getAverage(dataSet,row):
-
-    dataAvg = sum(dataSet) / len(dataSet)
-    print('Average for ' + str(row) + ' is: ' + str(dataAvg))
-    
-    
-
-while(1):
-
-    userInput = input('Get data points?')
-
-    if userInput == 'y':
-        for row in range(0,numRowsCollect):
-            for i in range(0,numPoints):
-                data = getValues()
-                printToFile(data,i)
-                dataInt = int(data)
-                dataList[i] = dataInt
-            
-            getAverage(dataList,row)
-
-        dataFile.close()
-        
-        break
+while True:
+    num = input("Enter rotation speed (multiple of 100 RPM): ") # rotation speed input
+    value = write_read(num)
+    print(value)
