@@ -2,8 +2,7 @@
 
 int userInput[1]; // array stores speed and duration
 int mosfetPin = 5;
-int pidPin = A1;
-int tachometerPin = A2;
+int tachoPin = A1;
 
 unsigned long currentTime = 0; // time since centrifugation start
 double currentRPM = 0; // var to keep track of speed
@@ -12,7 +11,7 @@ int writeDuty = 0; // duty cycle to send to MOSFET
 
 bool tookInput = false; // has user provided input
 
-// PID placeholder values that will change once we know more about PID
+// PID placeholder values (will change once we know more about PID)
 int Kp = 1;
 int Ki = 2;
 int Kd = 3;
@@ -25,9 +24,9 @@ PID v2PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(1);
-  pinMode(mosfetPin, OUTPUT); // initialise digital pin 5 as output
-  pinMode(pidPin, INPUT); // initialise A1 as PID input
-  pinMode(tachometerPin, INPUT); // initialise A2 as tachometer input
+  pinMode(mosfetPin, OUTPUT); // initialise digital pin 5 as MOSFET output
+  pinMode(tachoPin, INPUT); // initialise A1 as tachometer input
+  attachInterrupt(3, pin_ISR, CHANGE);
   
   v2PID.SetMode(AUTOMATIC); // configure PID (to be changed)
 }
@@ -59,7 +58,8 @@ void loop() {
 }
 
 double calculateSpeed() {
-  tachoOutput = analogRead(tachometerPin);
+  tachoOutput = analogRead(tachoPin);
   // perform calculations to convert tachometer output to RPM (will require experimentation)
+  // will eventually add a comparator between tachometer system and Arduino
   return tachoOutput;
 }
