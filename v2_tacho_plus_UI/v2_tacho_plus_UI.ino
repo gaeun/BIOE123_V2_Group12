@@ -13,6 +13,7 @@ unsigned long last_interrupt_time = 0;
 
 int initPower = 0; // value to write to analog pin
 int writeDuty = 0; // duty cycle to send to MOSFET
+boolean rampUp = true;
 
 int numInputs = 0;
 
@@ -61,8 +62,13 @@ void loop() {
 
       currentRPM = (rotationCount * 60); // use rotation count to get RPM
       Input = currentRPM;
+      if (Setpoint - currentRPM < 100 && rampUp) {
+          rampUp = false;
+          startTime = currentTime;
+          currentTime = millis();
+      }
       v2PID.Compute(); // PID calculation
-      Serial.println(Output);
+//      Serial.println(Output);
       analogWrite(mosfetPin, Output); // write PWM output
       
       Serial.println(currentRPM); // PRINT FOR TESTING
